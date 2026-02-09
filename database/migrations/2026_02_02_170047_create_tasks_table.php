@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title', 155);
             $table->string('description');
             $table->boolean('status');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
