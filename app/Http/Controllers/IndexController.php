@@ -2,39 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tasks;
+use App\Http\Requests\TaskRequest;
+use App\Services\TasksService;
 use Illuminate\Http\Request;
 
 class IndexController extends Controller
 {
+    private $taskService;
+
+    public function __construct(TasksService $taskService)
+    {
+        $this->taskService = $taskService;
+    }
 
     public function getTasks(Request $request)
     {
-        $tasks = Tasks::get();
+        $tasks = $this->taskService->getTasks();
         return view('page.todo', compact('tasks'));
     }
     public function getTask(Request $request)
     {
-        $task = Tasks::where('id', $request->id)->first();
+        
+        $task = $this->taskService->getTask($request->id);
 
-        return $task;
+        return view('page.task', compact('task'));
 
     }
-    public function createTask(Request $request)
+    public function createTask(TaskRequest $request)
     {
-        $model = new Tasks();
-        $model->title = $request->title;
-        $model->description = $request->description;
-        $model->status = false;
-        $model->save();
+        $validated = $request->validated();
+        $this->taskService->createTask($validated);
         return redirect('/tasks');
     }
-    public function updateTask(Request $request)
+    public function updateTask(TaskRequest $request)
     {
-        
+        $validated = $request->validated();
+        $this->taskService->updateTask($validated, $request->id);
+        return redirect('/tasks');
     }
     public function deleteTask(Request $request)
     {
-
+        $this->taskService->deleteTask($request->id);
+        return redirect('/tasks');
     }
 }
